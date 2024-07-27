@@ -4,12 +4,13 @@
 <title>Snake Game</title>
 <style>
   body {
-    background-color: #000; /* Set the background to black */
+    background-color: #000;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     margin: 0;
+    font-family: sans-serif;
   }
 
   canvas {
@@ -22,19 +23,58 @@
     font-size: 24px;
     margin-top: 10px;
   }
+
+  .settings-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .settings-menu {
+    position: absolute;
+    top: 50px;
+    right: 10px;
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    display: none;
+  }
+
+  .settings-menu input[type="range"] {
+    width: 100%;
+  }
+
+  .settings-menu label {
+    display: block;
+    margin-bottom: 5px;
+  }
 </style>
 </head>
 <body>
   <canvas id="gameCanvas" width="400" height="400"></canvas>
   <div class="score">Score: 0</div>
+  <div class="settings-icon">⚙️</div>
+  <div class="settings-menu">
+    <label for="speedSlider">Speed:</label>
+    <input type="range" id="speedSlider" min="50" max="250" value="100" step="10">
+    <label for="difficultySlider">Difficulty:</label>
+    <input type="range" id="difficultySlider" min="1" max="5" value="2" step="1">
+  </div>
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const gridSize = 20;
     let snake = [{ x: 10, y: 10 }];
     let food = {};
-    let direction = 'none'; // Initially no direction
+    let direction = 'none';
     let score = 0;
+    let speed = 100; // Adjust this for speed
+    let difficulty = 2; // Adjust this for difficulty
+
+    let gameLoop = null; // Store the interval for later clearing
 
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -124,10 +164,39 @@
       alert('Game Over! Your score: ' + score);
     }
 
-    generateFood();
-    draw();
+    function startGame() {
+      generateFood();
+      draw();
+      gameLoop = setInterval(update, speed); // Start the game loop
+    }
+
+    // Event listeners
     document.addEventListener('keydown', handleKeyPress);
-    const gameLoop = setInterval(update, 100); 
+    document.querySelector('.settings-icon').addEventListener('click', () => {
+      document.querySelector('.settings-menu').style.display = 'block';
+    });
+    document.querySelector('.settings-menu').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        document.querySelector('.settings-menu').style.display = 'none';
+      }
+    });
+
+    // Speed and difficulty sliders
+    document.getElementById('speedSlider').addEventListener('input', (e) => {
+      speed = e.target.value;
+      if (gameLoop) {
+        clearInterval(gameLoop); // Clear the old interval
+        gameLoop = setInterval(update, speed); // Start a new interval with the new speed
+      }
+    });
+    document.getElementById('difficultySlider').addEventListener('input', (e) => {
+      difficulty = e.target.value;
+      // Add logic here to adjust difficulty (e.g., food generation frequency)
+      console.log("Difficulty changed to: ", difficulty);
+    });
+
+    // Start the game
+    startGame();
   </script>
 </body>
 </html>
