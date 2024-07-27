@@ -51,6 +51,23 @@
     display: block;
     margin-bottom: 5px;
   }
+
+  .replay-button {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: none; /* Initially hidden */
+  }
 </style>
 </head>
 <body>
@@ -63,6 +80,7 @@
     <label for="difficultySlider">Difficulty:</label>
     <input type="range" id="difficultySlider" min="1" max="5" value="2" step="1">
   </div>
+  <button class="replay-button">Replay</button>
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -71,10 +89,10 @@
     let food = {};
     let direction = 'none';
     let score = 0;
-    let speed = 100; // Adjust this for speed
-    let difficulty = 2; // Adjust this for difficulty
+    let speed = 150; // Slower default speed
+    let difficulty = 2; 
 
-    let gameLoop = null; // Store the interval for later clearing
+    let gameLoop = null; 
 
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -161,32 +179,37 @@
 
     function gameOver() {
       clearInterval(gameLoop);
+      document.querySelector('.replay-button').style.display = 'block'; // Show the replay button
       alert('Game Over! Your score: ' + score);
     }
 
     function startGame() {
+      snake = [{ x: 10, y: 10 }]; // Reset snake
+      direction = 'none'; // Reset direction
+      score = 0; // Reset score
+      document.querySelector('.score').textContent = `Score: ${score}`; // Update score display
       generateFood();
       draw();
-      gameLoop = setInterval(update, speed); // Start the game loop
+      gameLoop = setInterval(update, speed); 
     }
 
     // Event listeners
     document.addEventListener('keydown', handleKeyPress);
     document.querySelector('.settings-icon').addEventListener('click', () => {
-      document.querySelector('.settings-menu').style.display = 'block';
+      const settingsMenu = document.querySelector('.settings-menu');
+      settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block'; 
     });
-    document.querySelector('.settings-menu').addEventListener('click', (e) => {
-      if (e.target === e.currentTarget) {
-        document.querySelector('.settings-menu').style.display = 'none';
-      }
+    document.querySelector('.replay-button').addEventListener('click', () => {
+      document.querySelector('.replay-button').style.display = 'none';
+      startGame(); // Start a new game
     });
 
     // Speed and difficulty sliders
     document.getElementById('speedSlider').addEventListener('input', (e) => {
       speed = e.target.value;
       if (gameLoop) {
-        clearInterval(gameLoop); // Clear the old interval
-        gameLoop = setInterval(update, speed); // Start a new interval with the new speed
+        clearInterval(gameLoop);
+        gameLoop = setInterval(update, speed);
       }
     });
     document.getElementById('difficultySlider').addEventListener('input', (e) => {
